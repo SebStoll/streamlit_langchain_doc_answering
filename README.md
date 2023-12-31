@@ -11,11 +11,9 @@ A Streamlit app which allows you to talk to a document of your choice.
 3. Navigate to the project directory: `cd streamlit_langchain_doc_answering`
 4. Install the dependencies: `pip install -r requirements.txt`
 5. Get an OpenAI API key from https://platform.openai.com/.
-6. Create file `credentials.json` in the project root:
+6. Create folder `.streamlit` in the project root directory. In it, create a `secrets.toml` file and add your OpenAI secure key:
     ```
-    {
-    "OPEN_AI_API_KEY": "<YOUR_OPENAI_API_KEY>"
-    }
+    openai_key = "<insert secure key here>"
     ```
 
 ## Usage

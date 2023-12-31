@@ -1,12 +1,16 @@
 # Basic project dependencies
-langchain>=0.0.291 
-openai>=0.28.1
+faiss-cpu>=1.7.4
+langchain>=0.0.353
+openai>=1.6.1
 streamlit>=1.29.0
+tiktoken>=0.5.2
+pdfminer.six
 
 
 # Additional dependencies
 #flask==2.0.1
 #pandas==1.3.3
+#bs4>=4.12.2
 
 # Development and testing dependencies
 #pytest==6.2.5

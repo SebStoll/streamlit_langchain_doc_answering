@@ -114,6 +114,9 @@ Thumbs.db
 *.swp
 *.swo
 
+# Ignore secrets
+.streamlit/
+
 # Project specific
 credentials.json
 data/raw/*
