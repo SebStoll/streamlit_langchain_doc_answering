@@ -1,10 +1,5 @@
 import streamlit as st
-
-# used to load text
-# from langchain.document_loaders import WebBaseLoader
 from langchain.document_loaders import PyPDFLoader
-
-# used to create the retriever
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import FAISS
 from langchain.embeddings import OpenAIEmbeddings
