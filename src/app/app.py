@@ -25,6 +25,7 @@ from langchain.prompts import MessagesPlaceholder
 from langchain.chat_models import ChatOpenAI
 # from langchain.agents import AgentExecutor
 from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain.chains import ConversationalRetrievalChain
 
 from src.document_database.data_loader import load_data
 
@@ -37,58 +38,74 @@ st.header("Chat with the LLM Agents blog 💬 📚")
 
 # Initialize the memory
 # This is needed for both the memory and the prompt
-memory_key = "history"
+# memory_key = "history"
 
-if "memory" not in st.session_state.keys():
-    st.session_state.memory = ConversationBufferMemory(memory_key=memory_key, return_messages=True)
+if 'history' not in st.session_state.keys():
+    st.session_state['history'] = []
+
+# if "memory" not in st.session_state.keys():
+#     st.session_state.memory = ConversationBufferMemory(memory_key=memory_key, return_messages=True)
 
 # Initialize the chat message history
 if "messages" not in st.session_state.keys():
     st.session_state.messages = [
-        {"role": "assistant", "content": "Ask me a question about LLM based agents!"}
+        {"role": "assistant", "content": "Ask me a question about the Warhammer 40k core rules (10th edition)!"}
     ]
 
-
-db = load_data(openai_api_key)
-
 # instantiate the database retriever
+db = load_data(openai_api_key)
 retriever = db.as_retriever()
 
-# define the retriever tool
-#@tool
-#def tool(query):
-#    """Searches and returns documents regarding Warhammer 40k core rules of the 10th edition"""
-#    docs = retriever.get_relevant_documents(query)
-#    return docs
 
-tool = create_retriever_tool(
-    retriever,
-    "search_wh40k_rules",
-    "Searches and returns excerpts from the Warhammer 40k (wh40k) core rule book (10th edition).",
-)
+#####
+#####
+# tool = create_retriever_tool(
+#     retriever,
+#     "search_wh40k_rules",
+#     "Searches and returns excerpts from the Warhammer 40k (wh40k) core rule book (10th edition).",
+# )
 
-tools = [tool]
+# tools = [tool]
 
-# define the prompt
-system_message = SystemMessage(
-        content=(
-            "You are a helpful assistant whose task is to answer questions on the Warhammer 40k (wh40k) core rule book (10th edition). "
-            "Always try to answer the questions by using the tools provided. "
-            "If you cannot answer the questions by using the tools provided, state so explicitly."
-        )
-)
-prompt_template = OpenAIFunctionsAgent.create_prompt(
-        system_message=system_message,
-        extra_prompt_messages=[MessagesPlaceholder(variable_name=memory_key)]
-    )
+# # define the prompt
+# system_message = SystemMessage(
+#         content=(
+#             "You are a helpful assistant whose task is to answer questions on the Warhammer 40k (wh40k) core rule book (10th edition). "
+#             "Always try to answer the questions by using the tools provided. "
+#             "If you cannot answer the questions by using the tools provided, state so explicitly."
+#         )
+# )
+# prompt_template = OpenAIFunctionsAgent.create_prompt(
+#         system_message=system_message,
+#         extra_prompt_messages=[MessagesPlaceholder(variable_name=memory_key)]
+#     )
 
-# instantiate the large language model
+# # instantiate the large language model
 llm = ChatOpenAI(temperature = 0, openai_api_key=openai_api_key)
 
-# instantiate agent
-# agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt_template)
-agent = create_openai_tools_agent(llm=llm, tools=tools, prompt=prompt_template)
-agent_executor = AgentExecutor(agent=agent, tools=tools, memory=st.session_state.memory)
+# # instantiate agent
+# # agent = OpenAIFunctionsAgent(llm=llm, tools=tools, prompt=prompt_template)
+# agent = create_openai_tools_agent(llm=llm, tools=tools, prompt=prompt_template)
+# agent_executor = AgentExecutor(agent=agent, tools=tools, memory=st.session_state.memory)
+
+#####
+#####
+
+# qa_chain = ConversationalRetrievalChain.from_llm(
+#     ChatOpenAI(),
+#     vectordb.as_retriever(search_kwargs={'k': 6}),
+#     return_source_documents=True
+# )
+
+qa_chain = ConversationalRetrievalChain.from_llm(
+        llm=llm,
+        retriever=retriever,
+        return_source_documents=True,
+        )
+
+
+######
+######
 
 # Prompt for user input and display message history
 if prompt := st.chat_input("Your LLM based agent related question"): # Prompt for user input and save to chat history
@@ -103,7 +120,9 @@ for message in st.session_state.messages: # Display the prior chat messages
 if st.session_state.messages[-1]["role"] != "assistant":
     with st.chat_message("assistant"):
         with st.spinner("Thinking..."):
-            response = agent_executor({"input": prompt})
-            st.write(response["output"])
-            message = {"role": "assistant", "content": response["output"]}
+            #response = agent_executor({"input": prompt})
+            response = qa_chain({"question": prompt, "chat_history": st.session_state['history']})
+            st.write(response["answer"])
+            message = {"role": "assistant", "content": response["answer"]}
             st.session_state.messages.append(message) # Add response to message history
+            st.session_state['history'].append((prompt, response["answer"]))
