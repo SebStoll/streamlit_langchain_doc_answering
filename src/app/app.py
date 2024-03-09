@@ -18,7 +18,7 @@ openai_api_key = st.secrets.openai_key
 db = load_data(openai_api_key)
 retriever = db.as_retriever()
 
-# # instantiate the large language model
+# instantiate the large language model
 llm = ChatOpenAI(temperature = 0, openai_api_key=openai_api_key)
 
 qa_chain = ConversationalRetrievalChain.from_llm(
@@ -31,7 +31,7 @@ qa_chain = ConversationalRetrievalChain.from_llm(
 # add a heading for your app.
 st.header("Chat with the Warhammer 40k core rule book (10th edition) 💬 📚")
 
-if 'history' not in st.session_state.keys():
+if "history" not in st.session_state.keys():
     st.session_state['history'] = []
 
 # Initialize the chat message history

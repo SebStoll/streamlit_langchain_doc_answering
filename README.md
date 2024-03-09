@@ -1,5 +1,5 @@
-# Streamlit and Langchain Experiments Series: The Document Oracle!
-A Streamlit app which allows you to talk to a document of your choice.
+# Streamlit and Langchain Experiments Series: Document Question Answering
+A Streamlit app which allows you to talk to a document of your choice. Per default you can ask questions to the Warhammer 40k 10th edition core rules.
 
 ## Table of Contents
 - [Installation](#installation)
